@@ -4,6 +4,7 @@ defmodule Tyx.Deft do
   """
   use Tyx
 
-  deft validate([list: List] ~> List) do
+  deft validate(list ~> List, count ~> Integer) ~>> List when count > 0 or count < 0 do
+    IO.puts(:put_from_block)
   end
 end
