@@ -12,7 +12,7 @@ defmodule Tyx.MixProject do
       compilers: compilers(Mix.env()),
       elixirc_paths: elixirc_paths(Mix.env()),
       consolidate_protocols: Mix.env() not in [:dev, :test],
-      preferred_cli_env: [ci: :ci],
+      preferred_cli_env: [credo: :ci, ci: :ci],
       description: description(),
       package: package(),
       deps: deps(),

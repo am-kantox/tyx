@@ -107,80 +107,80 @@ defmodule Mix.Tasks.Compile.Tyx do
     Logger.debug(inspect(event))
   end
 
-  system_apps = ~w/elixir stdlib kernel/a
-
-  system_apps
-  |> Stream.each(&Application.load/1)
-  |> Stream.flat_map(&Application.spec(&1, :modules))
-  |> Enum.each(fn module -> defp system_module?(unquote(module)), do: true end)
-
-  defp system_module?(module), do: :code.which(module) == :preloaded
-
   defp after_compiler(status, argv) do
     Logger.debug(inspect({status, argv}))
     status
   end
 
-  defp status([], _), do: :ok
-  defp status([_ | _], argv), do: if(warnings_as_errors?(argv), do: :error, else: :ok)
+  # system_apps = ~w/elixir stdlib kernel/a
 
-  defp warnings_as_errors?(argv) do
-    {parsed, _argv, _errors} = OptionParser.parse(argv, strict: [warnings_as_errors: :boolean])
-    Keyword.get(parsed, :warnings_as_errors, false)
-  end
+  # system_apps
+  # |> Stream.each(&Application.load/1)
+  # |> Stream.flat_map(&Application.spec(&1, :modules))
+  # |> Enum.each(fn module -> defp system_module?(unquote(module)), do: true end)
 
-  defp print_diagnostic_errors(errors) do
-    if errors != [], do: Mix.shell().info("")
-    Enum.each(errors, &print_diagnostic_error/1)
-  end
+  # defp system_module?(module), do: :code.which(module) == :preloaded
 
-  defp print_diagnostic_error(error) do
-    Mix.shell().info([severity(error.severity), error.message, location(error)])
-  end
+  # defp status([], _), do: :ok
+  # defp status([_ | _], argv), do: if(warnings_as_errors?(argv), do: :error, else: :ok)
 
-  defp location(error) do
-    if error.file != nil and error.file != "" do
-      pos = if error.position != nil, do: ":#{error.position}", else: ""
-      "\n  #{error.file}#{pos}\n"
-    else
-      "\n"
-    end
-  end
+  # defp warnings_as_errors?(argv) do
+  #   {parsed, _argv, _errors} = OptionParser.parse(argv, strict: [warnings_as_errors: :boolean])
+  #   Keyword.get(parsed, :warnings_as_errors, false)
+  # end
 
-  defp severity(severity), do: [:bright, color(severity), "#{severity}: ", :reset]
-  defp color(:error), do: :red
-  defp color(:warning), do: :yellow
+  # defp print_diagnostic_errors(errors) do
+  #   if errors != [], do: Mix.shell().info("")
+  #   Enum.each(errors, &print_diagnostic_error/1)
+  # end
 
-  defp check(application, entries) do
-    []
-    |> Stream.map(&to_diagnostic_error/1)
-    |> Enum.sort_by(&{&1.file, &1.position})
-  rescue
-    e in Boundary.Error ->
-      [diagnostic(e.message, file: e.file, position: e.line)]
-  end
+  # defp print_diagnostic_error(error) do
+  #   Mix.shell().info([severity(error.severity), error.message, location(error)])
+  # end
 
-  defp to_diagnostic_error({error, module}),
-    do: diagnostic("#{inspect(error)} is error", file: module_source(module))
+  # defp location(error) do
+  #   if error.file != nil and error.file != "" do
+  #     pos = if error.position != nil, do: ":#{error.position}", else: ""
+  #     "\n  #{error.file}#{pos}\n"
+  #   else
+  #     "\n"
+  #   end
+  # end
 
-  defp module_source(module) do
-    module.module_info(:compile)
-    |> Keyword.fetch!(:source)
-    |> to_string()
-    |> Path.relative_to_cwd()
-  catch
-    _, _ -> ""
-  end
+  # defp severity(severity), do: [:bright, color(severity), "#{severity}: ", :reset]
+  # defp color(:error), do: :red
+  # defp color(:warning), do: :yellow
 
-  def diagnostic(message, opts \\ []) do
-    %Compiler.Diagnostic{
-      compiler_name: "tyx",
-      details: nil,
-      file: "unknown",
-      message: message,
-      position: nil,
-      severity: :warning
-    }
-    |> Map.merge(Map.new(opts))
-  end
+  # defp check(application, entries) do
+  #   []
+  #   |> Stream.map(&to_diagnostic_error/1)
+  #   |> Enum.sort_by(&{&1.file, &1.position})
+  # rescue
+  #   e in Boundary.Error ->
+  #     [diagnostic(e.message, file: e.file, position: e.line)]
+  # end
+
+  # defp to_diagnostic_error({error, module}),
+  #   do: diagnostic("#{inspect(error)} is error", file: module_source(module))
+
+  # defp module_source(module) do
+  #   module.module_info(:compile)
+  #   |> Keyword.fetch!(:source)
+  #   |> to_string()
+  #   |> Path.relative_to_cwd()
+  # catch
+  #   _, _ -> ""
+  # end
+
+  # def diagnostic(message, opts \\ []) do
+  #   %Compiler.Diagnostic{
+  #     compiler_name: "tyx",
+  #     details: nil,
+  #     file: "unknown",
+  #     message: message,
+  #     position: nil,
+  #     severity: :warning
+  #   }
+  #   |> Map.merge(Map.new(opts))
+  # end
 end
