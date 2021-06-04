@@ -48,7 +48,7 @@ defmodule Tyx.Hooks do
   end
 
   defmacro __before_compile__(env) do
-    Logger.debug(inspect(Module.get_attribute(env.module, :tyx)))
+    Tyx.Traversal.validate(env, Module.get_attribute(env.module, :tyx))
   end
 
   defimpl Inspect do
@@ -56,7 +56,7 @@ defmodule Tyx.Hooks do
 
     def inspect(%Tyx.Hooks{kind: kind, guards: guards, body: body, signature: signature}, opts) do
       concat([
-        "<#Tyx ",
+        "<#Tyx",
         to_doc(
           [
             kind: kind,
