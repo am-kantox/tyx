@@ -12,7 +12,7 @@ defmodule Tyx.MixProject do
       compilers: compilers(Mix.env()),
       elixirc_paths: elixirc_paths(Mix.env()),
       consolidate_protocols: Mix.env() not in [:dev, :test],
-      preferred_cli_env: [credo: :ci, ci: :ci],
+      preferred_cli_env: [credo: :ci, ci: :ci, tyx: :tyx],
       description: description(),
       package: package(),
       deps: deps(),
@@ -47,7 +47,8 @@ defmodule Tyx.MixProject do
         "format --check-formatted",
         "credo --strict",
         "dialyzer"
-      ]
+      ],
+      tyx: ["clean", "compile"]
     ]
   end
 
@@ -93,5 +94,6 @@ defmodule Tyx.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   defp compilers(:prod), do: Mix.compilers()
+  # defp compilers(:tyx), do: [:tyx | Mix.compilers()]
   defp compilers(_), do: [:boundary | Mix.compilers()]
 end

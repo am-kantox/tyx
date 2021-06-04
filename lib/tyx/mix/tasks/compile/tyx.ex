@@ -3,11 +3,11 @@ defmodule Mix.Tasks.Compile.Tyx do
 
   require Logger
 
+  use Boundary, classify_to: Tyx.Mix
+  use Mix.Task.Compiler
+
   alias Mix.Task.Compiler
   alias Tyx.Mix.Typer
-
-  use Boundary, classify_to: Tyx.Mix
-  use Compiler
 
   @moduledoc """
   Cross-module type validation.
@@ -99,8 +99,16 @@ defmodule Mix.Tasks.Compile.Tyx do
   end
 
   @doc false
-  def trace({remote, meta, to_module, name, arity}, _env) do
-    Logger.debug(inspect({remote, meta, to_module, name, arity}))
+  def trace({remote, meta, to_module, name, arity}, env) do
+    _pos = if Keyword.keyword?(meta), do: Keyword.get(meta, :line, env.line)
+
+    # Typer.put(
+    #   :diagnostic,
+    #   diagnostic(message, details: env.context, position: pos, file: env.file)
+    # )
+
+    IO.inspect({remote, meta, to_module, name, arity}, label: to_string(to_module))
+    :ok
   end
 
   def trace(event, _env) do
