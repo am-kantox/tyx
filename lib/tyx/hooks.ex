@@ -10,9 +10,9 @@ defmodule Tyx.Hooks do
           args: Macro.t(),
           guards: Macro.t(),
           body: Macro.t(),
-          types: keyword()
+          signature: keyword()
         }
-  defstruct ~w|env kind fun args guards body types|a
+  defstruct ~w|env kind fun args guards body signature|a
 
   def __on_definition__(env, kind, fun, args, guards, body) do
     case {Module.get_attribute(env.module, :tyx_annotation), kind, body} do
@@ -25,7 +25,7 @@ defmodule Tyx.Hooks do
       {_, kind, _} when kind not in [:def, :defp] ->
         raise ArgumentError, "only function annotating is currently supported"
 
-      {types, kind, body} when is_list(types) ->
+      {signature, kind, body} when is_list(signature) ->
         Module.put_attribute(
           env.module,
           :tyx,
@@ -36,7 +36,7 @@ defmodule Tyx.Hooks do
             args: args,
             guards: guards,
             body: body,
-            types: types
+            signature: signature
           )
         )
 
@@ -54,13 +54,13 @@ defmodule Tyx.Hooks do
   defimpl Inspect do
     import Inspect.Algebra
 
-    def inspect(%Tyx.Hooks{kind: kind, guards: guards, body: body, types: types}, opts) do
+    def inspect(%Tyx.Hooks{kind: kind, guards: guards, body: body, signature: signature}, opts) do
       concat([
         "<#Tyx ",
         to_doc(
           [
             kind: kind,
-            types: types,
+            signature: signature,
             guards: Macro.to_string(guards),
             body: Macro.to_string(body)
           ],

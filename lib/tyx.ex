@@ -34,9 +34,9 @@ defmodule Tyx do
     ]
   end
 
-  defp extract_module_attribute(fun, args, ret, _body) do
+  defp extract_module_attribute(_fun, args, ret, _body) do
     args = for {:~>, _, [{arg, _, nil}, {:__aliases__, _, _} = type]} <- args, do: {arg, type}
-    {:@, [], [{:tyx_annotation, [], [[args: args, fun: fun, ret: ret]]}]}
+    {:@, [], [{:tyx_annotation, [], [[<~: args, ~>: ret]]}]}
   end
 
   defp untype(args, ctx) do
