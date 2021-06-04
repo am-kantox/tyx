@@ -48,7 +48,14 @@ defmodule Tyx.Hooks do
   end
 
   defmacro __before_compile__(env) do
-    Tyx.Traversal.validate(env, Module.get_attribute(env.module, :tyx))
+    validation =
+      env
+      |> Tyx.Traversal.validate(Module.get_attribute(env.module, :tyx))
+      |> Macro.escape()
+
+    quote do
+      def __tyx__, do: unquote(validation)
+    end
   end
 
   defimpl Inspect do

@@ -13,6 +13,7 @@ IEx.configure(
       boolean: :green,
       nil: :green,
       list: :white,
+      tuple: :white,
       map: :white
     ]
   ],
