@@ -99,7 +99,8 @@ defmodule Mix.Tasks.Compile.Tyx do
   end
 
   @doc false
-  def trace({remote, meta, to_module, name, arity}, env) do
+  def trace({_remote, meta, _to_module, _name, _arity}, env) do
+    # FIXME Do produce diagnostics
     _pos = if Keyword.keyword?(meta), do: Keyword.get(meta, :line, env.line)
 
     # Typer.put(
@@ -107,7 +108,6 @@ defmodule Mix.Tasks.Compile.Tyx do
     #   diagnostic(message, details: env.context, position: pos, file: env.file)
     # )
 
-    IO.inspect({remote, meta, to_module, name, arity}, label: to_string(to_module))
     :ok
   end
 

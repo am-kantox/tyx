@@ -1,21 +1,19 @@
 # Tyx
 
-**TODO: Add description**
+[![Kantox ❤ OSS](https://img.shields.io/badge/❤-kantox_oss-informational.svg)](https://kantox.com/)  [![Test](https://github.com/am-kantox/tyx/workflows/Test/badge.svg)](https://github.com/am-kantox/tyx/actions?query=workflow%3ATest)  [![Dialyzer](https://github.com/am-kantox/tyx/workflows/Dialyzer/badge.svg)](https://github.com/am-kantox/tyx/actions?query=workflow%3ADialyzer)
+
+**Library bringing types support to elixir in compile time**
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `tyx` to your list of dependencies in `mix.exs`:
+Add `tyx` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:tyx, "~> 0.1.0"}
+    {:tyx, "~> 0.1"}
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/tyx](https://hexdocs.pm/tyx).
+## [Documentation](https://hexdocs.pm/tyx)
 

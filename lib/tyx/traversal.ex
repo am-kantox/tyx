@@ -14,7 +14,7 @@ defmodule Tyx.Traversal do
 
       tyx.body
       |> Macro.postwalk([], fn ast, errors ->
-        # FIXME
+        # FIXME[PERF] don’t create maps on the fly
         case expand(ast, Map.new(tyx.signature[:<~])) do
           {:ok, ast} -> {ast, errors}
           {:error, error} -> {ast, [error | errors]}
