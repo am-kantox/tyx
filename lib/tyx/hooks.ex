@@ -20,10 +20,10 @@ defmodule Tyx.Hooks do
         :ok
 
       {_, _, nil} ->
-        raise ArgumentError, "only functions with body can be currently annotated"
+        raise ArgumentError, "only functions with body can be currently typed"
 
       {_, kind, _} when kind not in [:def, :defp] ->
-        raise ArgumentError, "only function annotating is currently supported"
+        raise ArgumentError, "only function typing is currently supported"
 
       {signature, kind, body} when is_list(signature) ->
         Module.put_attribute(
@@ -61,12 +61,16 @@ defmodule Tyx.Hooks do
   defimpl Inspect do
     import Inspect.Algebra
 
-    def inspect(%Tyx.Hooks{kind: kind, guards: guards, body: body, signature: signature}, opts) do
+    def inspect(
+          %Tyx.Hooks{kind: kind, fun: fun, guards: guards, body: body, signature: signature},
+          opts
+        ) do
       concat([
         "<#Tyx",
         to_doc(
           [
             kind: kind,
+            fun: fun,
             signature: signature,
             guards: Macro.to_string(guards),
             body: Macro.to_string(body)

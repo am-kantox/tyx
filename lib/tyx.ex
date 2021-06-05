@@ -23,21 +23,23 @@ defmodule Tyx do
 
   defmacro deft({:~>>, meta, [{fun, fmeta, args}, ret]}, body) do
     [
-      extract_module_attribute(fun, args, ret, body),
+      extract_module_attribute(fun, args, ret, body, __CALLER__),
       {:def, meta, [{fun, fmeta, untype(args, __CALLER__.context)}, body]}
     ]
   end
 
   defmacro deft({:when, gmeta, [{:~>>, meta, [{fun, fmeta, args}, ret]}, guards]}, body) do
     [
-      extract_module_attribute(fun, args, ret, body),
+      extract_module_attribute(fun, args, ret, body, __CALLER__),
       {:def, meta,
        [{:when, gmeta, [{fun, fmeta, untype(args, __CALLER__.context)}, guards]}, body]}
     ]
   end
 
-  defp extract_module_attribute(fun, args, ret, _body) do
-    args = for {:~>, _, [{arg, _, nil}, {:__aliases__, _, _} = type]} <- args, do: {arg, type}
+  defp extract_module_attribute(fun, args, ret, _body, ctx) do
+    args = for {:~>, _, [{arg, _, nil}, type]} <- args, do: {arg, Macro.expand(type, ctx)}
+    ret = Macro.expand(ret, ctx)
+
     args_spec = for {_arg, type} <- args, do: Typemap.to_spec(type)
     ret_spec = Typemap.to_spec(ret)
 
