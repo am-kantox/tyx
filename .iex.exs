@@ -7,8 +7,8 @@ IEx.configure(
     eval_error: [:red, :bright, "\n▸▸▸ "],
     eval_info: [:yellow, :bright],
     syntax_colors: [
-      number: :yellow,
-      atom: :cyan,
+      number: :green,
+      atom: :yellow,
       string: :red,
       boolean: :green,
       nil: :green,

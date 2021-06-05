@@ -7,7 +7,7 @@ defmodule TyxTest do
 
     assert outcomes == [
              {:error, [traversal: [{Enum, :reverse, 1}]]},
-             {:error, [return: [expected: Integer, got: List]]},
+             {:error, [return: [expected: Tyx.BuiltIn.Integer, got: Tyx.BuiltIn.List]]},
              :ok
            ]
   end
