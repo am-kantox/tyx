@@ -7,6 +7,8 @@ defmodule Tyx do
 
   use Boundary
 
+  alias Tyx.Typemap
+
   defmacro __using__(_opts) do
     quote do
       Module.register_attribute(__MODULE__, :tyx_annotation, accumulate: false)
@@ -34,9 +36,15 @@ defmodule Tyx do
     ]
   end
 
-  defp extract_module_attribute(_fun, args, ret, _body) do
+  defp extract_module_attribute(fun, args, ret, _body) do
     args = for {:~>, _, [{arg, _, nil}, {:__aliases__, _, _} = type]} <- args, do: {arg, type}
-    {:@, [], [{:tyx_annotation, [], [[<~: args, ~>: ret]]}]}
+    args_spec = for {_arg, type} <- args, do: Typemap.to_spec(type)
+    ret_spec = Typemap.to_spec(ret)
+
+    quote do
+      @tyx_annotation [<~: unquote(args), ~>: unquote(ret)]
+      @spec unquote(fun)(unquote_splicing(args_spec)) :: unquote(ret_spec)
+    end
   end
 
   defp untype(args, ctx) do
