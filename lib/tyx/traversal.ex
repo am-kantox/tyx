@@ -3,11 +3,11 @@ defmodule Tyx.Traversal do
 
   use Boundary
 
-  alias Tyx.{Hooks, Traversal.Lookup}
+  alias Tyx.Traversal.Lookup
 
   require Logger
 
-  @spec validate(Macro.Env.t(), [Hooks.t()]) :: [{Hooks.t(), :ok | {:error, keyword()}}]
+  @spec validate(Macro.Env.t(), [Tyx.t()]) :: [{Tyx.t(), :ok | {:error, keyword()}}]
   def validate(_env, tyxes) do
     Enum.map(tyxes, fn tyx ->
       outcome = tyx.signature[:~>]

@@ -6,8 +6,11 @@ defmodule Mix.Tasks.Compile.Tyx do
   use Boundary, classify_to: Tyx.Mix
   use Mix.Task.Compiler
 
-  alias Mix.Task.Compiler
+  alias Mix.{Project, Task.Compiler, Utils}
   alias Tyx.Mix.Typer
+
+  @preferred_cli_env :dev
+  @manifest_events "tyx_events"
 
   @moduledoc """
   Cross-module type validation.
@@ -98,26 +101,122 @@ defmodule Mix.Tasks.Compile.Tyx do
     {:ok, []}
   end
 
+  @impl Compiler
   @doc false
-  def trace({_remote, meta, _to_module, _name, _arity}, env) do
-    # FIXME Do produce diagnostics
-    _pos = if Keyword.keyword?(meta), do: Keyword.get(meta, :line, env.line)
+  def manifests, do: [manifest_path(@manifest_events)]
 
-    # Typer.put(
-    #   :diagnostic,
-    #   diagnostic(message, details: env.context, position: pos, file: env.file)
-    # )
+  @doc false
+  @impl Compiler
+  def clean do
+    :ok
+  end
+
+  @doc false
+  def trace({:imported_macro, meta, Tyx, :deft, 2}, env) do
+    pos = if Keyword.keyword?(meta), do: Keyword.get(meta, :line, env.line)
+
+    "⚑⚐⚑"
+    |> diagnostic(
+      details: [module: env.module, context: env.context],
+      position: pos,
+      file: env.file
+    )
+    |> Typer.put()
 
     :ok
   end
 
-  def trace(event, _env) do
-    Logger.debug(inspect(event))
+  @doc false
+  def trace(_event, _env), do: :ok
+
+  defp after_compiler({status, diagnostics}, argv) do
+    if status in [:ok, :noop] do
+      app_name = app_name()
+      Application.unload(app_name)
+      Application.load(app_name)
+    end
+
+    tracers = Enum.reject(Code.get_compiler_option(:tracers), &(&1 == __MODULE__))
+    Code.put_compiler_option(:tracers, tracers)
+
+    tyx_diagnostics = finalize_diagnostics()
+    write_manifest(@manifest_events, tyx_diagnostics)
+    Logger.debug(inspect({status, argv, tyx_diagnostics}))
+    {status, diagnostics ++ tyx_diagnostics}
   end
 
-  defp after_compiler(status, argv) do
-    Logger.debug(inspect({status, argv}))
-    status
+  @spec finalize_diagnostics :: [Compiler.Diagnostic.t()]
+  defp finalize_diagnostics do
+    # FIXME group by module and do it in bulks
+    Typer.all()
+    |> Enum.reduce([], fn diagnostic, acc ->
+      tyxes = diagnostic.details[:module].__tyx__()
+      pos = diagnostic.position
+      {_tyx, result} = Enum.find(tyxes, &match?({%Tyx{env: %Macro.Env{line: ^pos}}, _}, &1))
+
+      case result do
+        :ok ->
+          acc
+
+        {:error, [traversal: traversal]} ->
+          [
+            %Compiler.Diagnostic{
+              diagnostic
+              | message: "Unknown or not yet implemented issue at ##{pos}: #{inspect(traversal)}"
+            }
+            | acc
+          ]
+
+        {:error, known} ->
+          [
+            %Compiler.Diagnostic{
+              diagnostic
+              | message: "Tyx error at ##{pos}: #{inspect(known)}",
+                severity: :error
+            }
+            | acc
+          ]
+      end
+    end)
+  end
+
+  @spec app_name :: atom()
+  defp app_name, do: Keyword.fetch!(Project.config(), :app)
+
+  @spec store_config :: :ok | {:error, :manifest_missing}
+  def store_config, do: @manifest_events |> read_manifest() |> do_store_config()
+
+  @spec do_store_config(nil | term()) :: :ok | {:error, any()}
+  defp do_store_config(nil), do: {:error, :manifest_missing}
+
+  defp do_store_config(_manifest) do
+    :ok
+  end
+
+  @spec manifest_path(binary()) :: binary()
+  defp manifest_path(name),
+    do: Project.config() |> Project.manifest_path() |> Path.join("compile.#{name}")
+
+  @spec read_manifest(binary()) :: term()
+  defp read_manifest(name) do
+    unless Utils.stale?([Project.config_mtime()], [manifest_path(name)]) do
+      name
+      |> manifest_path()
+      |> File.read()
+      |> case do
+        {:ok, manifest} -> :erlang.binary_to_term(manifest)
+        _ -> nil
+      end
+    end
+  end
+
+  @spec write_manifest(binary(), term()) :: :ok
+  defp write_manifest(name, data) do
+    path = manifest_path(name)
+    File.mkdir_p!(Path.dirname(path))
+    File.write!(path, :erlang.term_to_binary(data))
+
+    do_store_config(data)
   end
 
   # system_apps = ~w/elixir stdlib kernel/a
@@ -180,15 +279,16 @@ defmodule Mix.Tasks.Compile.Tyx do
   #   _, _ -> ""
   # end
 
-  # def diagnostic(message, opts \\ []) do
-  #   %Compiler.Diagnostic{
-  #     compiler_name: "tyx",
-  #     details: nil,
-  #     file: "unknown",
-  #     message: message,
-  #     position: nil,
-  #     severity: :warning
-  #   }
-  #   |> Map.merge(Map.new(opts))
-  # end
+  @spec diagnostic(String.t(), keyword()) :: Compiler.Diagnostic.t()
+  def diagnostic(message, opts \\ []) do
+    %Compiler.Diagnostic{
+      compiler_name: "tyx",
+      details: nil,
+      file: "unknown",
+      message: message,
+      position: nil,
+      severity: :information
+    }
+    |> Map.merge(Map.new(opts))
+  end
 end

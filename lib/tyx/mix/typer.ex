@@ -4,7 +4,7 @@ defmodule Tyx.Mix.Typer do
   use Boundary
   use GenServer
 
-  @errors_table __MODULE__.Errors
+  @diagnostics_table __MODULE__.Diagnostics
 
   @spec start_link :: GenServer.on_start()
   def start_link do
@@ -12,13 +12,13 @@ defmodule Tyx.Mix.Typer do
     |> GenServer.start_link(nil, name: __MODULE__)
     |> tap(fn on_start ->
       if match?({:ok, _pid}, on_start) or match?({:error, {:already_started, _pid}}, on_start),
-        do: :ets.delete_all_objects(@errors_table)
+        do: :ets.delete_all_objects(@diagnostics_table)
     end)
   end
 
   @impl GenServer
   def init(nil) do
-    :ets.new(@errors_table, [
+    :ets.new(@diagnostics_table, [
       :set,
       :public,
       :named_table,
@@ -29,13 +29,18 @@ defmodule Tyx.Mix.Typer do
     {:ok, %{}}
   end
 
-  # defp stored_modules do
-  #   Stream.unfold(
-  #     :ets.first(@entries_table),
-  #     fn
-  #       :"$end_of_table" -> nil
-  #       key -> {key, :ets.next(@entries_table, key)}
-  #     end
-  #   )
-  # end
+  @spec put(Mix.Task.Compiler.Diagnostic.t()) :: true
+  def put(diagnostic) do
+    :ets.insert(@diagnostics_table, {diagnostic})
+  end
+
+  def all do
+    @diagnostics_table
+    |> :ets.first()
+    |> Stream.unfold(fn
+      :"$end_of_table" -> nil
+      key -> {key, :ets.next(@diagnostics_table, key)}
+    end)
+    |> Enum.to_list()
+  end
 end
