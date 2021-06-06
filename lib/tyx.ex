@@ -5,9 +5,36 @@ defmodule Tyx do
 
   # credo:disable-for-this-file Credo.Check.Warning.IoInspect
 
-  use Boundary
+  use Boundary, exports: [Fn]
 
   alias Tyx.Traversal.Typemap
+
+  defmodule Fn do
+    @moduledoc false
+    @type t :: %{
+            __struct__: Fn,
+            meta: keyword(),
+            <~: [module()],
+            ~>: module()
+          }
+    @enforce_keys ~w|~> <~|a
+    defstruct ~>: nil, <~: nil, meta: []
+
+    defimpl Inspect do
+      @moduledoc false
+      import Inspect.Algebra
+
+      def inspect(%Fn{meta: _meta, <~: args, ~>: ret}, opts) do
+        concat([
+          string("<#ℱ "),
+          to_doc(args, opts),
+          string(" → "),
+          to_doc(ret, opts),
+          string(">")
+        ])
+      end
+    end
+  end
 
   @typedoc """
   `Tyx` internal structure to keep information about typed functions.
@@ -19,7 +46,7 @@ defmodule Tyx do
           args: Macro.t(),
           guards: Macro.t(),
           body: Macro.t(),
-          signature: keyword()
+          signature: Fn.t()
         }
   defstruct ~w|env kind fun args guards body signature|a
 
@@ -58,7 +85,7 @@ defmodule Tyx do
     ret_spec = Typemap.to_spec(ret)
 
     quote do
-      @tyx_annotation [<~: unquote(args), ~>: unquote(ret)]
+      @tyx_annotation %Fn{<~: unquote(args), ~>: unquote(ret)}
       @spec unquote(fun)(unquote_splicing(args_spec)) :: unquote(ret_spec)
     end
   end
