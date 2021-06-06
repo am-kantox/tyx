@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Compile.Tyx do
   use Boundary, classify_to: Tyx.Mix
   use Mix.Task.Compiler
 
-  alias Mix.Task.Compiler
+  alias Mix.{Project, Task.Compiler, Utils}
   alias Tyx.Mix.Typer
 
   @preferred_cli_env :dev
@@ -181,7 +181,7 @@ defmodule Mix.Tasks.Compile.Tyx do
   end
 
   @spec app_name :: atom()
-  defp app_name, do: Keyword.fetch!(Mix.Project.config(), :app)
+  defp app_name, do: Keyword.fetch!(Project.config(), :app)
 
   @spec store_config :: :ok | {:error, :manifest_missing}
   def store_config, do: @manifest_events |> read_manifest() |> do_store_config()
@@ -195,11 +195,11 @@ defmodule Mix.Tasks.Compile.Tyx do
 
   @spec manifest_path(binary()) :: binary()
   defp manifest_path(name),
-    do: Mix.Project.config() |> Mix.Project.manifest_path() |> Path.join("compile.#{name}")
+    do: Project.config() |> Project.manifest_path() |> Path.join("compile.#{name}")
 
   @spec read_manifest(binary()) :: term()
   defp read_manifest(name) do
-    unless Mix.Utils.stale?([Mix.Project.config_mtime()], [manifest_path(name)]) do
+    unless Utils.stale?([Project.config_mtime()], [manifest_path(name)]) do
       name
       |> manifest_path()
       |> File.read()
