@@ -9,6 +9,20 @@ defmodule Tyx do
 
   alias Tyx.Typemap
 
+  @typedoc """
+  `Tyx` internal structure to keep information about typed functions.
+  """
+  @type t :: %{
+          env: Macro.Env.t(),
+          kind: :def | :defp,
+          fun: atom(),
+          args: Macro.t(),
+          guards: Macro.t(),
+          body: Macro.t(),
+          signature: keyword()
+        }
+  defstruct ~w|env kind fun args guards body signature|a
+
   defmacro __using__(_opts) do
     quote do
       Module.register_attribute(__MODULE__, :tyx_annotation, accumulate: false)
@@ -53,8 +67,28 @@ defmodule Tyx do
     for {:~>, _, [{arg, _, nil}, _]} <- args, do: Macro.var(arg, ctx)
   end
 
-  # defmacro left ~> right do
-  #   IO.inspect({left, right}, label: "~>")
-  #   :ok
-  # end
+  defimpl Inspect do
+    @moduledoc false
+    import Inspect.Algebra
+
+    def inspect(
+          %Tyx{kind: kind, fun: fun, guards: guards, body: body, signature: signature},
+          opts
+        ) do
+      concat([
+        "<#Tyx",
+        to_doc(
+          [
+            kind: kind,
+            fun: fun,
+            signature: signature,
+            guards: Macro.to_string(guards),
+            body: Macro.to_string(body)
+          ],
+          opts
+        ),
+        ">"
+      ])
+    end
+  end
 end

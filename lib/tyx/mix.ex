@@ -1,7 +1,7 @@
 defmodule Tyx.Mix do
   @moduledoc false
 
-  use Boundary, deps: [Tyx.Hooks]
+  use Boundary, deps: [Tyx]
 
   alias Mix.{Project, Utils}
 

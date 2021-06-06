@@ -152,7 +152,7 @@ defmodule Mix.Tasks.Compile.Tyx do
     |> Enum.reduce([], fn diagnostic, acc ->
       tyxes = diagnostic.details[:module].__tyx__()
       pos = diagnostic.position
-      {_tyx, result} = Enum.find(tyxes, &match?({%Tyx.Hooks{env: %Macro.Env{line: ^pos}}, _}, &1))
+      {_tyx, result} = Enum.find(tyxes, &match?({%Tyx{env: %Macro.Env{line: ^pos}}, _}, &1))
 
       case result do
         :ok ->

@@ -5,17 +5,6 @@ defmodule Tyx.Hooks do
 
   use Boundary, deps: [Tyx.Traversal]
 
-  @type t :: %{
-          env: Macro.Env.t(),
-          kind: :def | :defp,
-          fun: atom(),
-          args: Macro.t(),
-          guards: Macro.t(),
-          body: Macro.t(),
-          signature: keyword()
-        }
-  defstruct ~w|env kind fun args guards body signature|a
-
   def __on_definition__(env, kind, fun, args, guards, body) do
     case {Module.get_attribute(env.module, :tyx_annotation), kind, body} do
       {nil, _, _} ->
@@ -31,7 +20,7 @@ defmodule Tyx.Hooks do
         Module.put_attribute(
           env.module,
           :tyx,
-          struct(__MODULE__,
+          struct!(Tyx,
             env: env,
             kind: kind,
             fun: fun,
@@ -57,30 +46,6 @@ defmodule Tyx.Hooks do
 
     quote do
       def __tyx__, do: unquote(validation)
-    end
-  end
-
-  defimpl Inspect do
-    import Inspect.Algebra
-
-    def inspect(
-          %Tyx.Hooks{kind: kind, fun: fun, guards: guards, body: body, signature: signature},
-          opts
-        ) do
-      concat([
-        "<#Tyx",
-        to_doc(
-          [
-            kind: kind,
-            fun: fun,
-            signature: signature,
-            guards: Macro.to_string(guards),
-            body: Macro.to_string(body)
-          ],
-          opts
-        ),
-        ">"
-      ])
     end
   end
 end
