@@ -1,6 +1,6 @@
 # Tyx
 
-[![Kantox ❤ OSS](https://img.shields.io/badge/❤-kantox_oss-informational.svg)](https://kantox.com/)  [![Test](https://github.com/am-kantox/tyx/workflows/Test/badge.svg)](https://github.com/am-kantox/tyx/actions/workflows/test.yml)  [![Dialyzer](https://github.com/am-kantox/tyx/workflows/Dialyzer/badge.svg)](https://github.com/am-kantox/tyx/actions/workflows/dialyzer.yml)
+[![Kantox ❤ OSS](https://img.shields.io/badge/❤-kantox_oss-informational.svg)](https://kantox.com/)  [![Test](https://github.com/am-kantox/tyx/actions/workflows/test.yml/badge.svg)](https://github.com/am-kantox/tyx/actions/workflows/test.yml)  [![Dialyzer](https://github.com/am-kantox/tyx/actions/workflows/dialyzer.yml/badge.svg)](https://github.com/am-kantox/tyx/actions/workflows/dialyzer.yml)
 
 **Library bringing types support to elixir in compile time**
 
