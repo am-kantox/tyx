@@ -18,6 +18,16 @@ defmodule Tyx.Deft do
     ok(list, count)
   end
 
+  deft ok_nested(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List do
+    Enum.reverse(Enum.take(list, count))
+  end
+
+  deft ok_pipe(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List do
+    list
+    |> Enum.take(count)
+    |> Enum.reverse()
+  end
+
   deft ko_nospec(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.Integer do
     no_spec(list, count)
   end
