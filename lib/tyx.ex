@@ -7,7 +7,7 @@ defmodule Tyx do
 
   use Boundary
 
-  alias Tyx.Typemap
+  alias Tyx.Traversal.Typemap
 
   @typedoc """
   `Tyx` internal structure to keep information about typed functions.

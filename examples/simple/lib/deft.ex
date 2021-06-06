@@ -14,7 +14,7 @@ defmodule Simple.Deft do
     Enum.take(list, count)
   end
 
-  deft ko2(list ~> Ex.List, _count ~> Ex.Integer) ~>> Ex.Integer do
+  deft ko2(list ~> Ex.List, _count ~> Ex.Integer) ~>> GenServer.on_start() do
     Enum.reverse(list)
   end
 end

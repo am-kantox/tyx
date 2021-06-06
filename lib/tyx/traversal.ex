@@ -1,7 +1,7 @@
 defmodule Tyx.Traversal do
   @moduledoc false
 
-  use Boundary
+  use Boundary, exports: [Lookup, Typemap]
 
   alias Tyx.Traversal.Lookup
 
