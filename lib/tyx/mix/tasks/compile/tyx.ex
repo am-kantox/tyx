@@ -115,9 +115,7 @@ defmodule Mix.Tasks.Compile.Tyx do
   def trace({:imported_macro, meta, Tyx, :deft, 2}, env) do
     pos = if Keyword.keyword?(meta), do: Keyword.get(meta, :line, env.line)
 
-    Logger.warn(inspect({Module.open?(env.module), env.module}))
-
-    "This got to be expanded to spec and normal elixir function call"
+    "⚑⚐⚑"
     |> diagnostic(
       details: [module: env.module, context: env.context],
       position: pos,
@@ -129,14 +127,7 @@ defmodule Mix.Tasks.Compile.Tyx do
   end
 
   @doc false
-  def trace({_remote, _meta, _to_module, _name, _arity} = data, _env) do
-    Logger.info(inspect(data))
-  end
-
-  @doc false
-  def trace(event, _env) do
-    Logger.debug(inspect(event))
-  end
+  def trace(_event, _env), do: :ok
 
   defp after_compiler({status, diagnostics}, argv) do
     if status in [:ok, :noop] do
@@ -145,15 +136,48 @@ defmodule Mix.Tasks.Compile.Tyx do
       Application.load(app_name)
     end
 
-    IO.inspect(Simple.Deft.__tyx__())
-
     tracers = Enum.reject(Code.get_compiler_option(:tracers), &(&1 == __MODULE__))
     Code.put_compiler_option(:tracers, tracers)
 
-    tyx_diagnostics = Typer.all()
+    tyx_diagnostics = finalize_diagnostics()
     write_manifest(@manifest_events, tyx_diagnostics)
     Logger.debug(inspect({status, argv, tyx_diagnostics}))
     {status, diagnostics ++ tyx_diagnostics}
+  end
+
+  @spec finalize_diagnostics :: [Compiler.Diagnostic.t()]
+  defp finalize_diagnostics do
+    # FIXME group by module and do it in bulks
+    Typer.all()
+    |> Enum.reduce([], fn diagnostic, acc ->
+      tyxes = diagnostic.details[:module].__tyx__()
+      pos = diagnostic.position
+      {_tyx, result} = Enum.find(tyxes, &match?({%Tyx.Hooks{env: %Macro.Env{line: ^pos}}, _}, &1))
+
+      case result do
+        :ok ->
+          acc
+
+        {:error, [traversal: traversal]} ->
+          [
+            %Compiler.Diagnostic{
+              diagnostic
+              | message: "Unknown or not yet implemented issue at ##{pos}: #{inspect(traversal)}"
+            }
+            | acc
+          ]
+
+        {:error, known} ->
+          [
+            %Compiler.Diagnostic{
+              diagnostic
+              | message: "Tyx error at ##{pos}: #{inspect(known)}",
+                severity: :error
+            }
+            | acc
+          ]
+      end
+    end)
   end
 
   @spec app_name :: atom()
