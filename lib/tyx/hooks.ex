@@ -3,6 +3,8 @@ defmodule Tyx.Hooks do
 
   require Logger
 
+  use Boundary, deps: [Tyx.Traversal]
+
   @type t :: %{
           env: Macro.Env.t(),
           kind: :def | :defp,
