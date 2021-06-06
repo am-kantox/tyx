@@ -9,6 +9,8 @@ defmodule TyxTest do
              {:error, return: [expected: Tyx.Remote.GenServer.OnStart, got: Tyx.BuiltIn.List]},
              {:error, [traversal: [no_spec: :no_spec]]},
              :ok,
+             :ok,
+             :ok,
              :ok
            ]
   end
