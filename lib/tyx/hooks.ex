@@ -3,7 +3,7 @@ defmodule Tyx.Hooks do
 
   require Logger
 
-  use Boundary, deps: [Tyx.Traversal]
+  use Boundary, deps: [Tyx, Tyx.Traversal]
 
   def __on_definition__(env, kind, fun, args, guards, body) do
     case {Module.get_attribute(env.module, :tyx_annotation), kind, body} do
@@ -16,7 +16,7 @@ defmodule Tyx.Hooks do
       {_, kind, _} when kind not in [:def, :defp] ->
         raise ArgumentError, "only function typing is currently supported"
 
-      {signature, kind, body} when is_list(signature) ->
+      {%Tyx.Fn{} = signature, kind, body} ->
         Module.put_attribute(
           env.module,
           :tyx,

@@ -6,8 +6,11 @@ defmodule TyxTest do
     outcomes = Enum.map(Tyx.Deft.__tyx__(), &elem(&1, 1))
 
     assert outcomes == [
-             {:error, [traversal: [{Enum, :reverse, 1}]]},
-             {:error, [return: [expected: Tyx.BuiltIn.Integer, got: Tyx.BuiltIn.List]]},
+             {:error, return: [expected: Tyx.Remote.GenServer.OnStart, got: Tyx.BuiltIn.List]},
+             {:error, [traversal: [no_spec: :no_spec]]},
+             :ok,
+             :ok,
+             :ok,
              :ok
            ]
   end

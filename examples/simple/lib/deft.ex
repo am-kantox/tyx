@@ -5,6 +5,7 @@ defmodule Simple.Deft do
   use Tyx
 
   alias Tyx.BuiltIn, as: Ex
+  alias Tyx.Remote, as: Re
 
   deft ok(list ~> Ex.List, count ~> Ex.Integer) ~>> Ex.List when count > 0 or count < 0 do
     Enum.take(list, count)
@@ -14,7 +15,7 @@ defmodule Simple.Deft do
     Enum.take(list, count)
   end
 
-  deft ko2(list ~> Ex.List, _count ~> Ex.Integer) ~>> Ex.Integer do
+  deft ko2(list ~> Ex.List, _count ~> Ex.Integer) ~>> Re.GenServer.OnStart do
     Enum.reverse(list)
   end
 end

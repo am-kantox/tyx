@@ -7,14 +7,14 @@ IEx.configure(
     eval_error: [:red, :bright, "\n▸▸▸ "],
     eval_info: [:yellow, :bright],
     syntax_colors: [
-      number: :green,
-      atom: :yellow,
-      string: :red,
-      boolean: :green,
-      nil: :green,
-      list: :white,
-      tuple: :white,
-      map: :white
+      number: :cyan,
+      atom: :green,
+      string: :yellow,
+      boolean: :white,
+      nil: :red,
+      list: :blue,
+      tuple: :blue,
+      map: :blue
     ]
   ],
   default_prompt:
