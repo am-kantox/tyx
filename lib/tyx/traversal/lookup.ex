@@ -7,9 +7,6 @@ defmodule Tyx.Traversal.Lookup do
 
   require Logger
 
-  def get(Enum, :take, [Tyx.BuiltIn.List, Tyx.BuiltIn.Integer]),
-    do: {:ok, Tyx.BuiltIn.List}
-
   def get(mod, fun, args) do
     with {:ok, specs} <- Code.Typespec.fetch_specs(mod),
          {:ok, spec} <- to_spec(specs, {fun, length(args)}),
