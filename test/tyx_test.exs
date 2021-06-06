@@ -7,8 +7,8 @@ defmodule TyxTest do
 
     assert outcomes == [
              {:error, return: [expected: Tyx.Remote.GenServer.OnStart, got: Tyx.BuiltIn.List]},
-             {:error, [traversal: [no_spec: :locals_not_yet_implemented]]},
-             {:error, [traversal: [ok: :locals_not_yet_implemented]]},
+             {:error, [traversal: [no_spec: :no_spec]]},
+             :ok,
              :ok
            ]
   end
