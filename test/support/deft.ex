@@ -6,16 +6,23 @@ defmodule Tyx.Deft do
 
   alias Tyx.{BuiltIn, Remote}
 
+  def no_spec(list, count), do: Enum.take(list, count)
+
   deft ok(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List
        when count > 0 or count < 0 do
     Enum.take(list, count)
   end
 
-  deft ko1(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.Integer do
-    Enum.take(list, count)
+  deft ok_ok(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List
+       when count > 0 or count < 0 do
+    ok(list, count)
   end
 
-  deft ko2(list ~> BuiltIn.List) ~>> Remote.GenServer.OnStart do
+  deft ko_nospec(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.Integer do
+    no_spec(list, count)
+  end
+
+  deft ko_bad_ret(list ~> BuiltIn.List) ~>> Remote.GenServer.OnStart do
     Enum.reverse(list)
   end
 end
