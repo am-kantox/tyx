@@ -2,7 +2,7 @@ defmodule Tyx.MixProject do
   use Mix.Project
 
   @app :tyx
-  @version "0.1.1"
+  @version "0.1.2"
 
   def project do
     [
