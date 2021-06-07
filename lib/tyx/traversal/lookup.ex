@@ -34,7 +34,8 @@ defmodule Tyx.Traversal.Lookup do
     end
   end
 
-  @spec to_spec([tuple()], {module(), atom(), non_neg_integer()}) :: {:ok, module()} | :error
+  @spec to_spec([tuple()], {module(), atom(), non_neg_integer()}) ::
+          {:ok, {[module()], module()}} | :error
   defp to_spec(specs, {mod, fun, arity}) when is_list(specs) do
     with signature <- {fun, arity},
          {^signature, [{type, _, f, spec}]}
