@@ -15,11 +15,14 @@ defmodule Tyx.Traversal.Typemap do
     {{:., [], [namespace |> Enum.reverse() |> Module.concat(), atomize(name)]}, [], []}
   end
 
-  @spec from_spec({:type, number(), atom(), [Macro.t()]}) :: module()
-  def from_spec({:type, _, built_in, _}),
+  @spec from_spec(module(), {:type, number(), atom(), [Macro.t()]}) :: module()
+  def from_spec(_mod, {:type, _, built_in, _}),
     do: Module.concat(["Tyx", "BuiltIn", Macro.camelize("#{built_in}")])
 
-  def from_spec(_), do: Tyx.Unknown
+  def from_spec(mod, {:user_type, _, user_type, _}),
+    do: Module.concat(["Tyx", "Remote" | Module.split(mod)] ++ [Macro.camelize("#{user_type}")])
+
+  def from_spec(_, _), do: Tyx.Unknown
 
   @spec atomize(module()) :: atom()
   # `String.to_existing_atom/1` somehow does not work with remote types

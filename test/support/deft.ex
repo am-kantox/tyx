@@ -6,6 +6,8 @@ defmodule Tyx.Deft do
 
   alias Tyx.{BuiltIn, Remote}
 
+  import Float
+
   def no_spec(list, count), do: Enum.take(list, count)
 
   deft ok(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List
@@ -20,6 +22,14 @@ defmodule Tyx.Deft do
 
   deft ok_nested(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List do
     Enum.reverse(Enum.take(list, count))
+  end
+
+  deft ok_imported(float ~> BuiltIn.Float) ~>> BuiltIn.Tuple do
+    ratio(float)
+  end
+
+  deft ok_plus(i1 ~> BuiltIn.Integer, i2 ~> BuiltIn.Integer) ~>> BuiltIn.Integer do
+    i1 + i2
   end
 
   deft ok_pipe(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List do
