@@ -10,7 +10,9 @@ defmodule Tyx do
   alias Tyx.Traversal.Typemap
 
   defmodule Fn do
-    @moduledoc false
+    @moduledoc """
+    The function signature. Describes the function arguments types and the return type.
+    """
     @type t :: %{
             __struct__: Fn,
             meta: keyword(),

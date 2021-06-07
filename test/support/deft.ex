@@ -1,7 +1,6 @@
 defmodule Tyx.Deft do
-  @moduledoc """
-  Tests for `deft/2`.
-  """
+  @moduledoc false
+
   use Tyx
 
   alias Tyx.{BuiltIn, Remote}
