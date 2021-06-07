@@ -7,6 +7,9 @@ defmodule Tyx.Traversal do
 
   require Logger
 
+  @callback lookup(module(), atom(), [module()] | non_neg_integer()) ::
+              {:error, {module, atom(), non_neg_integer()}} | {:ok, atom()}
+
   @spec validate(Macro.Env.t(), [Tyx.t()]) :: [{Tyx.t(), :ok | {:error, keyword()}}]
   def validate(env, tyxes) do
     tyxes_with_imports =
