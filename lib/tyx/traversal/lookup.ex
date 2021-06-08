@@ -15,12 +15,18 @@ defmodule Tyx.Traversal.Lookup do
   @spec lookup(module(), atom(), [module()] | non_neg_integer()) ::
           {:error, {module, atom(), non_neg_integer()}} | {:ok, atom()}
   def get(mod, fun, args) do
-    Enum.reduce_while(@lookup_plugins, nil, fn preset, nil ->
+    @lookup_plugins
+    |> Enum.reduce_while(nil, fn preset, nil ->
       case preset.lookup(mod, fun, args) do
         {:ok, result} -> {:halt, {:ok, result}}
         _ -> {:cont, nil}
       end
-    end) || lookup(mod, fun, args)
+    end)
+    |> case do
+      {:ok, {:alias, {mod, fun, args}}} -> lookup(mod, fun, args)
+      {:ok, result} -> {:ok, result}
+      nil -> lookup(mod, fun, args)
+    end
   end
 
   @impl Tyx.Traversal

@@ -35,4 +35,4 @@ IEx.configure(
     |> IO.chardata_to_string()
 )
 
-alias Tyx.Deft, as: F
+alias Tyx.Samples.Deft, as: Deft

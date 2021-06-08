@@ -3,8 +3,18 @@ defmodule Tyx.Traversal.Typemap do
 
   use Boundary
 
-  @spec to_spec(module()) :: Macro.t()
-  def to_spec(mod), do: mod |> Module.split() |> do_to_spec()
+  @spec to_spec(Macro.t(), Macro.Env.t()) :: {Macro.t(), Macro.t()}
+  def to_spec(mod, ctx) when is_atom(mod) do
+    mods = Macro.expand(mod, ctx)
+    {mods, mods |> Module.split() |> do_to_spec()}
+  end
+
+  def to_spec(
+        {{:., _, [Access, :get]}, _meta, [{:__aliases__, _, _} = type, {:__aliases__, _, _}]},
+        ctx
+      ) do
+    to_spec(Macro.expand(type, ctx), ctx)
+  end
 
   @spec do_to_spec([binary()]) :: Macro.t()
   def do_to_spec(["Tyx", "BuiltIn", built_in]),

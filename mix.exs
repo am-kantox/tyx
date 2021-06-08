@@ -33,7 +33,8 @@ defmodule Tyx.MixProject do
 
   defp deps do
     [
-      {:boundary, "~> 0.4", runtime: false},
+      # {:boundary, "~> 0.4", runtime: false},
+      {:boundary, "~> 0.4"},
       # dev, ci
       {:credo, "~> 1.0", only: :ci, runtime: false},
       {:dialyxir, "~> 1.0", only: :ci, runtime: false},

@@ -1,9 +1,11 @@
-defmodule Tyx.Deft do
+defmodule Tyx.Samples.Deft do
   @moduledoc false
 
   use Tyx
 
   alias Tyx.{BuiltIn, Remote}
+
+  @map %Tyx.Samples.Map{}
 
   import Float
 
@@ -12,6 +14,14 @@ defmodule Tyx.Deft do
   deft ok(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List
        when count > 0 or count < 0 do
     Enum.take(list, count)
+  end
+
+  deft ok_map(map ~> Remote.Tyx.Samples.Map.T) ~>> BuiltIn.List[BuiltIn.Atom] do
+    Map.get(map, :atoms)
+  end
+
+  deft ko_map(map ~> Remote.Tyx.Samples.Map.T) ~>> BuiltIn.Integer do
+    map.atoms
   end
 
   deft ok_ok(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List

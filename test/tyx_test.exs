@@ -3,7 +3,7 @@ defmodule TyxTest do
   doctest Tyx
 
   test "injected `__tyx__/0` works as expected" do
-    outcomes = Enum.map(Tyx.Deft.__tyx__(), &elem(&1, 1))
+    outcomes = Enum.map(Tyx.Samples.Deft.__tyx__(), &elem(&1, 1))
 
     assert outcomes == [
              {:error, return: [expected: Tyx.Remote.GenServer.OnStart, got: Tyx.BuiltIn.List]},
@@ -12,6 +12,14 @@ defmodule TyxTest do
              :ok,
              :ok,
              :ok,
+             :ok,
+             {:error,
+              [
+                traversal: [
+                  {{:., [line: 24], [Tyx.Remote.Tyx.Samples.Map.T, :atoms]}, [no_spec: []]},
+                  {:., [no_spec: [Tyx.Remote.Tyx.Samples.Map.T, :atoms]]}
+                ]
+              ]},
              :ok,
              :ok
            ]
