@@ -37,7 +37,8 @@ defmodule Tyx.Traversal.Lookup do
         arity when is_integer(arity) -> arity
       end
 
-    with {:ok, specs} <- Code.Typespec.fetch_specs(mod),
+    with {:module, ^mod} <- Code.ensure_compiled(mod),
+         {:ok, specs} <- Code.Typespec.fetch_specs(mod),
          {:ok, spec} <- to_spec(specs, {mod, fun, args}),
          {:ok, tyx} <- to_tyx_fn(spec) do
       {:ok, tyx}

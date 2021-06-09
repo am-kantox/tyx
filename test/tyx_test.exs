@@ -13,13 +13,7 @@ defmodule TyxTest do
              :ok,
              :ok,
              :ok,
-             {:error,
-              [
-                traversal: [
-                  {{:., [line: 24], [Tyx.Remote.Tyx.Samples.Map.T, :atoms]}, [no_spec: []]},
-                  {:., [no_spec: [Tyx.Remote.Tyx.Samples.Map.T, :atoms]]}
-                ]
-              ]},
+             {:error, [return: [expected: Tyx.BuiltIn.Integer, got: Tyx.BuiltIn.Atom]]},
              :ok,
              :ok
            ]

@@ -1,11 +1,11 @@
 defmodule Tyx.Samples.Deft do
-  @moduledoc false
+  @moduledoc "Examples of Type usage"
 
   use Tyx
 
-  alias Tyx.{BuiltIn, Remote}
+  alias Tyx.{BuiltIn, Remote, Samples.Deft.M}
 
-  @map %Tyx.Samples.Map{}
+  Module.put_attribute(__MODULE__, :map, %M{})
 
   import Float
 
@@ -16,12 +16,12 @@ defmodule Tyx.Samples.Deft do
     Enum.take(list, count)
   end
 
-  deft ok_map(map ~> Remote.Tyx.Samples.Map.T) ~>> BuiltIn.List[BuiltIn.Atom] do
+  deft ok_map(map ~> Remote.Tyx.Samples.Deft.M.T) ~>> BuiltIn.List[BuiltIn.Atom] do
     Map.get(map, :atoms)
   end
 
-  deft ko_map(map ~> Remote.Tyx.Samples.Map.T) ~>> BuiltIn.Integer do
-    map.atoms
+  deft ko_map(map ~> Remote.Tyx.Samples.Deft.M.T) ~>> BuiltIn.Integer do
+    map.atom_map.atoms
   end
 
   deft ok_ok(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.List
