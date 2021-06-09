@@ -20,7 +20,6 @@ defmodule Tyx.Traversal.Preset do
                Enum.find(fields, &match?({:type, _, :map_field_exact, [{:atom, _, ^t2}, _]}, &1)) do
           {:ok, %Tyx.Fn{<~: [arg1: t1, arg2: t2], ~>: Typemap.from_spec(mod, type)}}
         end
-        |> IO.inspect(label: "​★★★")
 
       _ ->
         {:ok, {:alias, {Map, :get, [t1, t2, Tyx.BuiltIn.Nil]}}}
