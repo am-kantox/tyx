@@ -3,6 +3,7 @@ defmodule Tyx.Samples.Deft do
 
   use Tyx
 
+  Code.ensure_compiled!(Tyx.Samples.Deft.M)
   alias Tyx.{BuiltIn, Remote, Samples.Deft.M}
 
   Module.put_attribute(__MODULE__, :map, %M{})
