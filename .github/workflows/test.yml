@@ -26,4 +26,5 @@ jobs:
           mix do deps.get, compile
       - name: Run tests
         run: |
+          rm _build/test/lib/tyx/ebin/Elixir.Tyx.Samples.Deft.beam
           mix test
