@@ -12,7 +12,7 @@ defmodule Tyx.Traversal.Preset do
   def lookup(Map, :get, [t1, t2]) do
     case Typemap.to_spec(t1, nil) do
       {^t1, {{:., _, [mod, type]}, _, []}} ->
-        with {:module, ^mod} <- Code.ensure_compiled(mod),
+        with ^mod <- Code.ensure_compiled!(mod),
              {:ok, types} <- Typespec.fetch_types(mod),
              {_, {^type, {:type, _, :map, fields}, _}} <-
                Enum.find(types, &match?({_, {^type, _, _}}, &1)),
