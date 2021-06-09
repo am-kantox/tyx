@@ -26,7 +26,6 @@ defmodule Tyx.Traversal do
       |> Macro.expand(env)
       |> Macro.prewalk(&desugar/1)
       |> Macro.postwalk([], fn ast, errors ->
-        # FIXME[PERF] don’t create maps on the fly
         case expand(ast, tyx.signature, tyxes_with_imports, env) do
           {:ok, ast} -> {ast, errors}
           {:error, error} -> {ast, [error | errors]}
@@ -46,6 +45,16 @@ defmodule Tyx.Traversal do
     |> Macro.unpipe()
     |> Enum.reduce(fn {arg, p}, {acc, pp} -> {Macro.pipe(acc, arg, pp), p} end)
     |> elem(0)
+  end
+
+  defp desugar({{:., meta, args} = _dot_call, _no_parens, []}) do
+    args =
+      case args do
+        [{_map, _meta, nil}, _field] -> args
+        _ -> desugar(args)
+      end
+
+    {{:., meta, [{:__aliases__, [alias: false], [:Map]}, :fetch!]}, meta, args}
   end
 
   defp desugar(not_pipe_call), do: not_pipe_call

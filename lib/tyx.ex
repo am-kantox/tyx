@@ -80,11 +80,14 @@ defmodule Tyx do
   end
 
   defp extract_module_attribute(fun, args, ret, _body, ctx) do
-    args = for {:~>, _, [{arg, _, nil}, type]} <- args, do: {arg, Macro.expand(type, ctx)}
-    ret = Macro.expand(ret, ctx)
+    {args, args_spec} =
+      for {:~>, _, [{arg_name, _, nil}, type]} <- args do
+        {arg, arg_spec} = type |> Macro.expand(ctx) |> Typemap.to_spec(ctx)
+        {{arg_name, arg}, arg_spec}
+      end
+      |> Enum.unzip()
 
-    args_spec = for {_arg, type} <- args, do: Typemap.to_spec(type)
-    ret_spec = Typemap.to_spec(ret)
+    {ret, ret_spec} = ret |> Macro.expand(ctx) |> Typemap.to_spec(ctx)
 
     quote do
       @tyx_annotation %Fn{<~: unquote(args), ~>: unquote(ret)}
