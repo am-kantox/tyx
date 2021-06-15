@@ -16,6 +16,7 @@ defmodule TyxTest do
              :ok,
              :ok,
              :ok,
+             :ok,
              {:error, [return: [expected: Tyx.BuiltIn.Integer, got: Tyx.BuiltIn.Atom]]},
              {:error, [return: [expected: Tyx.Remote.GenServer.OnStart, got: Tyx.BuiltIn.List]]},
              {:error, [traversal: [no_spec: [no_spec: [Tyx.BuiltIn.List, Tyx.BuiltIn.Integer]]]]}

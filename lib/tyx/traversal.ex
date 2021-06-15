@@ -24,7 +24,7 @@ defmodule Tyx.Traversal do
 
       tyx.body
       |> Macro.expand(env)
-      |> Macro.prewalk(&desugar/1)
+      |> Macro.prewalk(&desugar(&1, tyx.signature, tyxes_with_imports, env))
       |> Macro.postwalk([], fn ast, errors ->
         case expand(ast, tyx.signature, tyxes_with_imports, env) do
           {:ok, ast} -> {ast, errors}
@@ -40,24 +40,43 @@ defmodule Tyx.Traversal do
     end)
   end
 
-  defp desugar({:|>, _, _} = pipe_call) do
+  defp desugar({:|>, _, _} = pipe_call, _mapping, _tyxes, _env) do
     pipe_call
     |> Macro.unpipe()
     |> Enum.reduce(fn {arg, p}, {acc, pp} -> {Macro.pipe(acc, arg, pp), p} end)
     |> elem(0)
   end
 
-  defp desugar({{:., meta, args} = _dot_call, _no_parens, []}) do
+  defp desugar({{:., meta, args} = _dot_call, _no_parens, []}, mapping, tyxes, env) do
     args =
       case args do
         [{_map, _meta, nil}, _field] -> args
-        _ -> desugar(args)
+        _ -> desugar(args, mapping, tyxes, env)
       end
 
     {{:., meta, [{:__aliases__, [alias: false], [:Map]}, :fetch!]}, meta, args}
   end
 
-  defp desugar(not_pipe_call), do: not_pipe_call
+  defp desugar({:__block__, _, expressions}, _mapping, _tyxes, _env) do
+    [return | pre] = Enum.reverse(expressions)
+
+    binding =
+      Enum.reduce(pre, %{}, fn
+        {:=, _, [{var, _, _}, result]}, ctx -> Map.put(ctx, var, result)
+        _some, ctx -> ctx
+      end)
+
+    Macro.postwalk(return, &apply_bindings(&1, binding))
+  end
+
+  defp desugar(not_pipe_call, _mapping, _tyxes, _env), do: not_pipe_call
+
+  @spec apply_bindings(Macro.t(), map()) :: Macro.t()
+  defp apply_bindings({key, _meta, nil} = var, binding) do
+    Map.get(binding, key, var)
+  end
+
+  defp apply_bindings(any, _binding), do: any
 
   defp expand({key, _, nil}, mapping, _tyxes, _env),
     do: if(mapping.<~[key], do: {:ok, mapping.<~[key]}, else: {:error, {key, :invalid}})
@@ -71,8 +90,16 @@ defmodule Tyx.Traversal do
   defp expand({:., _, [{:__aliases__, _, _mods}, _fun]} = tail_call, _mapping, _tyxes, _env),
     do: {:ok, tail_call}
 
+  for operator <- ~w|+ - *|a,
+      t1 <- [Tyx.BuiltIn.Integer, Tyx.BuiltIn.NonNegInteger, Tyx.BuiltIn.PosInteger],
+      t2 <- [Tyx.BuiltIn.Integer, Tyx.BuiltIn.NonNegInteger, Tyx.BuiltIn.PosInteger] do
+    # FIXME Carefully specify return types for all combinations
+    defp expand({unquote(operator), _, [unquote(t1), unquote(t2)]}, _mapping, _tyxes, _env),
+      do: {:ok, Tyx.BuiltIn.Integer}
+  end
+
   defp expand({fun, _, args}, _mapping, tyxes, _env) do
-    Enum.reduce_while(tyxes, {:error, {fun, [no_spec: args]}}, fn tyx, acc ->
+    Enum.reduce_while(tyxes, {:error, {:no_spec, [{fun, args}]}}, fn tyx, acc ->
       with %Tyx{fun: ^fun, signature: %Tyx.Fn{<~: fargs, ~>: fret}} <- tyx,
            ^args <- Keyword.values(fargs),
            do: {:halt, {:ok, fret}},

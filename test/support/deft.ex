@@ -17,7 +17,13 @@ defmodule Tyx.Samples.Deft do
   end
 
   deft ok_map(map ~> Remote.Tyx.Samples.Deft.M.T) ~>> BuiltIn.List[BuiltIn.Atom] do
-    Map.get(map, :atoms)
+    key = :atoms
+    Map.get(map, key)
+  end
+
+  deft ok_block(list ~> BuiltIn.List, count ~> BuiltIn.Integer) ~>> BuiltIn.Integer do
+    half = Integer.floor_div(count, 2)
+    Enum.count(list) + half
   end
 
   deft ko_map(map ~> Remote.Tyx.Samples.Deft.M.T) ~>> BuiltIn.Integer do

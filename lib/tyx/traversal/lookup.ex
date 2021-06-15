@@ -12,7 +12,7 @@ defmodule Tyx.Traversal.Lookup do
 
   @behaviour Tyx.Traversal
 
-  @spec lookup(module(), atom(), [module()] | non_neg_integer()) ::
+  @spec get(module(), atom(), [module()] | non_neg_integer()) ::
           {:error, {module, atom(), non_neg_integer()}} | {:ok, atom()}
   def get(mod, fun, args) do
     @lookup_plugins
